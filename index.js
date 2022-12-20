@@ -9,27 +9,9 @@ const userRoutes = require('./_routes/userRoute');
 const projectRoutes = require('./_routes/projectRoute');
 const ticketRoutes = require('./_routes/ticketRoute');
 
-const whitelist = ["http://localhost:3000"]
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error("Not allowed by CORS"))
-    }
-  },
-  credentials: true,
-}
-
-app.use(cors(corsOptions));
-
-
 connDB();
 
 app.use(express.json());
-
-
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/projects", projectRoutes);
