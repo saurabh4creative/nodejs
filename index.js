@@ -12,7 +12,7 @@ const ticketRoutes = require('./_routes/ticketRoute');
 connDB();
 
 var corsOptions = {
-    origin: 'http://localhost:3080',
+    origin: 'http://localhost:3000',
     optionsSuccessStatus: 200 // For legacy browser support
 }
   
