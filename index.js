@@ -13,9 +13,20 @@ connDB();
 
 app.use(express.json());
 
-app.use(cors());
+var permitCrossDomainRequests = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    // some browsers send a pre-flight OPTIONS request to check if CORS is enabled so you have to also respond to that
+    if ('OPTIONS' === req.method) {
+      res.send(200);
+    }
+    else {
+      next();
+    }
+};
 
-app.options('*',cors())
+app.use(permitCrossDomainRequests);
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/projects", projectRoutes);
