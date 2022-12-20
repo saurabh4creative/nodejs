@@ -13,15 +13,9 @@ connDB();
 
 app.use(express.json());
 
-const corsOpts = {
-    origin: '*',
-    credentials: true,
-    methods: ['GET','POST','HEAD','PUT','PATCH','DELETE'],
-    allowedHeaders: ['Content-Type'],
-    exposedHeaders: ['Content-Type']
-};
+app.use(cors());
 
-app.use(cors(corsOpts));
+app.options('*',cors())
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/projects", projectRoutes);
