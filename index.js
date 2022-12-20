@@ -4,7 +4,12 @@ const express = require('express');
 const cors    = require('cors'); 
 const app     = express();
 
-app.use(cors());
+app.options("/", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.sendStatus(204);
+});
 
 const PORT    = 8080 || process.env.PORT;
 const connDB  = require('./_config/db'); 
