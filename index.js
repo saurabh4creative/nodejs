@@ -13,6 +13,11 @@ connDB();
 
 app.options('*', cors())
 
+app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    next();
+});
+
 app.use(express.json());
 
 
