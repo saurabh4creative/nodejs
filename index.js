@@ -15,8 +15,8 @@ app.use(express.json());
 
 var permitCrossDomainRequests = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
     // some browsers send a pre-flight OPTIONS request to check if CORS is enabled so you have to also respond to that
     if ('OPTIONS' === req.method) {
       res.send(200);
