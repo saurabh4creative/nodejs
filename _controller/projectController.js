@@ -20,6 +20,8 @@ const create_project = async (req, res) => {
 }
 
 const get_list = async (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    
     const project = await Project.find({}).populate('isUser');
     const ticket = await Ticket.find({}).populate('project');
     
