@@ -11,7 +11,7 @@ app.use((req,res, next)=>{
     next();
 });
 
-const PORT    = 8080 || process.env.PORT;
+const PORT    = process.env.PORT || 8080;
 const connDB  = require('./_config/db'); 
 const userRoutes = require('./_routes/userRoute');
 const projectRoutes = require('./_routes/projectRoute');
