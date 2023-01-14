@@ -21,12 +21,12 @@ const create_project = async (req, res) => {
 }
 
 const get_list = async (req, res) => {
-    const project = await Project.find({}).populate('isUser');
-    const ticket = await Ticket.find({}).populate('project');
+    const project = await Project.find().select('category createdAt discription isActive isUser status title updatedAt').populate({path: 'isUser', select:'firstName lastName email'});
+    const ticket = await Ticket.find().select('assignee board createdAt discription estimate points priority project reportar status title type updatedAt').populate({path: 'project', select:'_id'} );
     
     res.json({
           status : true,
-          message : 'Project Fetched Successfullys',
+          message : 'Project Fetched Successfully...',
           projects : project,
           tickets : ticket
     })
