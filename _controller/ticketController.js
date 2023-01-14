@@ -1,6 +1,7 @@
 const User = require('../_models/userModel');
 const Project = require('../_models/projectModel');
 const Ticket = require('../_models/ticketModel');
+var mongoose = require('mongoose');
 
 const get_Data = async (req, res) => {
      const user = await User.find({});
@@ -47,19 +48,30 @@ const get_all = async (req, res) => {
 const my_tickets = async (req, res) => {
      const u_id  = req.user._id;
      
-     const ticketAssign   = await Ticket.find({ assignee : u_id }).populate('project').populate('assignee').populate('reportar').sort({createdAt:-1});
      const ticketReportar = await Ticket.find({ reportar : u_id }).populate('project').populate('assignee').populate('reportar').sort({createdAt:-1});
 
      res.json({
           status  : true,
-          message : 'Tickets Fetched Successfully',
-          ticketAssign : ticketAssign,
-          ticketReportar : ticketReportar
+          message : 'Tickets Fetched Successfully', 
+          tickets : ticketReportar
+     })
+}
+
+const assign_tickets = async (req, res) => {
+     const u_id  = req.user._id;
+     
+     const ticketAssign   = await Ticket.find({ assignee : u_id }).populate('project').populate('assignee').populate('reportar').sort({createdAt:-1});
+     
+     res.json({
+          status  : true,
+          message : 'Tickets Fetched Successfully', 
+          tickets : ticketAssign
      })
 }
 
 const get_ticket = async ( req, res ) => {
      const id = req.params.id;
+     
 
      if( id ){
           try{
@@ -76,13 +88,15 @@ const get_ticket = async ( req, res ) => {
                     res.json({
                          status  : false,
                          message : 'No Ticket Found', 
+                         ticket  : {}
                     })
                }
 
           }catch(err){
                res.json({
-                    status : false,
+                    status : 'error',
                     message : 'Something Wrong with Ticket ID or May be not matched...',  
+                    ticket  : {}
                }) 
           }
      }
@@ -90,6 +104,7 @@ const get_ticket = async ( req, res ) => {
           res.json({
                 status : false,
                 message : 'Please Provide the ID',
+                ticket  : {}
           })
      }
 }
@@ -97,17 +112,25 @@ const get_ticket = async ( req, res ) => {
 const edit_ticket = async (req, res) => {
      const id = req.params.id;
      
-     const { assignee, discription, priority, project, reportar, title, type, estimate, status, points } = req.body;
- 
-     const ticket = await Ticket.findOneAndUpdate({_id: id }, 
-                        { $set : { assignee, discription, priority, project, reportar, title, type, estimate, status, points } } 
-     );
+     if( mongoose.isValidObjectId(id) ){
+          const { assignee, discription, priority, project, reportar, title, type, estimate, status, points } = req.body;
+     
+          const ticket = await Ticket.findOneAndUpdate({_id: id }, 
+                         { $set : { assignee, discription, priority, project, reportar, title, type, estimate, status, points } } 
+          );
 
-     res.json({
-          status : true,
-          message : 'Issue Edit Successfully',
-          data : ticket
-     }) 
+          res.json({
+               status : true,
+               message : 'Issue Edit Successfully',
+               data : ticket
+          }) 
+     }else{
+          res.json({
+               status : false,
+               message : 'Something Wrong with ID',
+               data : {}
+          }) 
+     }
 }
 
-module.exports = { get_Data, create_create, get_all, my_tickets, get_ticket, edit_ticket }
+module.exports = { get_Data, create_create, get_all, my_tickets, get_ticket, edit_ticket, assign_tickets }

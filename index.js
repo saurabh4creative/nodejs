@@ -17,8 +17,6 @@ const userRoutes = require('./_routes/userRoute');
 const projectRoutes = require('./_routes/projectRoute');
 const ticketRoutes = require('./_routes/ticketRoute');
 
-
-
 connDB();
 
 app.use(express.json());

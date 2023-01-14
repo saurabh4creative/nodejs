@@ -9,6 +9,10 @@ const projectSchema = mongoose.Schema({
         type : String,
         required : true
     },
+    category:{
+        type : String,
+        required : true
+    },
     status:{
         type : String,
         required : true,

@@ -7,39 +7,48 @@ const jwt  = require('jsonwebtoken');
 const secert = process.env.JWT_SECRET;
 
 const user_register = async (req, res) => {
-     const { firstName, lastName, email, password } = req.body;
+     const { firstName, lastName, email, password, designation } = req.body;
 
      const checkUser = await User.findOne({ email });
      
      if( checkUser ){
           res.json({
                status : false,
-               message : 'User Already Found...'
+               message : 'User Already Registed, Please try with Another Email...'
           })
      }
      else{
+        
+        const otp = Math.floor(1000 + Math.random() * 9000);
+
         const token = jwt.sign({
-            firstName, lastName, email, password
+            firstName, lastName, email, password, otp, designation
         }, secert, {
             expiresIn: '30d'
         });
-
+        
         res.json({
             status : true,
-            message : 'Please Check your Email...',
-            token : token
+            message : 'User Registerd Successfully',
+            token : token,
+            otp : otp
         })
      }
 }
 
 const user_activate = async (req, res) => {
-     const { token } = req.body;
+     
+     const { token, otp1, otp2, otp3, otp4 } = req.body;
 
      if( token ){
          try{
             const decoded = jwt.verify(token, secert);
-            const { firstName, lastName, email, password } = decoded;
- 
+            const { firstName, lastName, email, password, otp, designation } = decoded;
+
+            const finalotp = otp1 + otp2 + otp3 + otp4;
+
+            const endOtp = parseInt(finalotp);
+  
             const userExists = await User.findOne({ email });
   
             if( userExists ){
@@ -49,21 +58,31 @@ const user_activate = async (req, res) => {
                 }) 
             }
             else{
-                const user = await User.create({
-                    firstName, lastName, email, password,
-                });
+                
+               if( endOtp === otp ){
+                     const user = await User.create({
+                         firstName, lastName, email, password, designation
+                     });
 
-                res.json({
-                    status : true,
-                    message : 'User Registed Successfully...',
-                    user : user
-                }) 
+                     res.json({
+                         status : true,
+                         message : 'User Registed Successfully...',
+                         user : user
+                     }) 
+               }else{
+                    res.json({
+                         status  : false,
+                         message : 'Invalid OTP Please Try with Correct OTP.' 
+                    })
+               }
+
+               
             } 
          }
          catch(err){ 
             res.json({
                  status : false,
-                 message : 'Invalid Token ID or May be Exprire...', 
+                 message : err.message, 
             })
          }
      }
@@ -114,19 +133,40 @@ const user_dashboard = async (req, res) => {
      const myprojects = await Project.find({ isUser : id });
      const doneticket = await Ticket.find({}).where({status : 'Done'});
 
+     // res.json({
+     //      status : true,
+     //      message : 'Details Fetch Successfully',
+     //      // user : user,
+     //      all_projects : project,
+     //      my_projects  : myprojects,
+     //      my_tickets   : ticketAssign,
+     //      all_tickets  :  ticket
+     //      // assignee : ticketAssign,
+     //      // reportar : ticketReportar,
+     //      // myprojects : myprojects,
+     //      // allticket : ticket,
+     //      // doneticket : doneticket
+     // })
+
+     res.json({
+          status   : true,
+          message  : 'User Details Info',
+          userinfo : user,
+          projects : project,
+          tickets  : ticket,
+          my_projects : myprojects,
+          my_tickets : ticketReportar,
+          assign_tickets : ticketAssign 
+     })
+}
+
+const user_profile = async (req, res) => {
+     const id = req.user._id; 
+     const user = await User.findById(id);
      res.json({
           status : true,
-          message : 'Details Fetch Successfully',
-          // user : user,
-          all_projects : project,
-          my_projects  : myprojects,
-          my_tickets   : ticketAssign,
-          all_tickets  :  ticket
-          // assignee : ticketAssign,
-          // reportar : ticketReportar,
-          // myprojects : myprojects,
-          // allticket : ticket,
-          // doneticket : doneticket
+          message : 'User Fetched Successfully',
+          userinfo : user
      })
 }
 
@@ -159,12 +199,21 @@ const get_karbon = async (req, res) => {
                path : 'project'
           }
      });
+
+     if( Object.keys(kr).length > 0 ){
+          res.json({
+               status  : true,
+               message : 'All Boards Fetch Successfully...',
+               data : kr
+          })
+     }else{
+          res.json({
+               status  : false,
+               message : 'No Board Found',
+               data : {}
+          })
+     }
       
-     res.json({
-          status  : true,
-          message : 'Data Fetch sad',
-          data : kr
-     })
 }
 
 var mongoose = require('mongoose');
@@ -188,7 +237,8 @@ const get_karbon_detail = async (req, res) => {
                     populate : {
                          path : 'project'
                     } 
-               }); 
+               });
+               
                
                if( kr.length ){
                     res.json({
@@ -199,7 +249,7 @@ const get_karbon_detail = async (req, res) => {
                }else{
                     res.json({
                          status  : false,
-                         message : 'No Record Found...',
+                         message : 'Unauthorize Access...',
                          data    : {} 
                     })
                } 
@@ -270,4 +320,20 @@ const get_lists = async (req, res) => {
      })
 }
 
-module.exports = {user_register, user_activate, user_login, user_dashboard, create_karbon, get_karbon, get_karbon_detail, update_karbon_detail, get_lists, active_karbon_detail};
+const get_karbon_update = async (req, res) => {
+     const id = req.params.id;
+     
+     const { name, discription, start, end, user } = req.body;
+ 
+     const karbon = await Karbon.findOneAndUpdate({ _id: id }, 
+          { $set : { name, discription, start, end, listUser : user  } } 
+     );
+
+     res.json({
+          status : true,
+          message : 'Board Edit Successfully',
+          data : karbon
+     }) 
+}
+
+module.exports = {user_register, user_activate, user_login, user_dashboard, create_karbon, get_karbon, get_karbon_detail, update_karbon_detail, get_lists, active_karbon_detail, get_karbon_update, user_profile};
