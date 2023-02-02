@@ -21,7 +21,7 @@ const create_project = async (req, res) => {
 }
 
 const get_list = async (req, res) => {
-    const project = await Project.find().select('category createdAt discription isActive isUser status title updatedAt').populate({path: 'isUser', select:'firstName lastName email'});
+    const project = await Project.find().select('category createdAt discription isActive isUser status title updatedAt').populate({path: 'isUser', select:'firstName lastName email designation'});
     const ticket = await Ticket.find().select('assignee board createdAt discription estimate points priority project reportar status title type updatedAt').populate({path: 'project', select:'_id'} );
     
     res.json({

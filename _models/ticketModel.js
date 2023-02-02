@@ -51,6 +51,19 @@ const ticketSchema = mongoose.Schema({
         required: false,
         ref : 'Karbon' 
     }],
+    comments : { required: false, type: [{
+        date:     { 
+            type: Date, 
+            default: Date.now,
+            required: false, 
+        },
+        userId:   { 
+            type: mongoose.Schema.Types.ObjectId,
+            required: false,
+            ref : 'User'     
+        },
+        content:  { type: Object, required: false }
+    }]} 
 },{
     timestamps:true
 })

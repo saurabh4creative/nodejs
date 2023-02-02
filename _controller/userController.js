@@ -14,7 +14,7 @@ const user_register = async (req, res) => {
      if( checkUser ){
           res.json({
                status : false,
-               message : 'User Already Registed, Please try with Another Email...'
+               message : 'User Already Registed, Please try with Another Email...',
           })
      }
      else{
@@ -96,7 +96,9 @@ const user_activate = async (req, res) => {
 
 const user_login = async (req, res) => {
      const { email, password } = req.body; 
-     const user = await User.findOne({ email })  
+     const user = await User.findOne({ email });
+     
+     console.log(req.user);
 
      if(user && (await user.matchPassword(password))){
           const { firstName, lastName, _id } = user;
@@ -120,6 +122,16 @@ const user_login = async (req, res) => {
                message : 'Invalid Email or Password'
           })
      }
+}
+
+const user_logout = async (req, res, next) => {
+     const id = req.user._id;
+     req.user = {}; 
+     
+     res.json({
+          status : id,
+          message : 'User Log Out Successfully...'
+     })
 }
 
 const user_dashboard = async (req, res) => {
@@ -265,9 +277,15 @@ const get_karbon_detail = async (req, res) => {
 const update_karbon_detail = async (req, res) => {
      
      const {id, ticket_ID} = req.body;
+     const { _id } = req.user;
+
+     const comments = {
+          userId : _id,
+          content : ['Updated the <b>Sprint Board</b>']
+     };
 
      const kr = await Karbon.findByIdAndUpdate(id, {$push: {"tickets": [ticket_ID]}} );
-     const tk = await Ticket.findByIdAndUpdate(ticket_ID, {$push: {"board": [id]}} );
+     const tk = await Ticket.findByIdAndUpdate(ticket_ID, { $push: {"board": [id], "comments": [comments]} } );
       
      res.json({
           status  : true,
@@ -336,4 +354,4 @@ const get_karbon_update = async (req, res) => {
      }) 
 }
 
-module.exports = {user_register, user_activate, user_login, user_dashboard, create_karbon, get_karbon, get_karbon_detail, update_karbon_detail, get_lists, active_karbon_detail, get_karbon_update, user_profile};
+module.exports = {user_register, user_activate, user_login, user_dashboard, create_karbon, get_karbon, get_karbon_detail, update_karbon_detail, get_lists, active_karbon_detail, get_karbon_update, user_profile, user_logout};

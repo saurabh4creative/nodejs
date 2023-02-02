@@ -9,7 +9,7 @@ router.post('/activate', userController.user_activate)
 router.post('/login', userController.user_login)
 
 router.use(authMiddleware);
-
+ 
 router.get('/get_lists', userController.get_lists);
 router.get('/profile', userController.user_profile)
 router.get('/dashboard', userController.user_dashboard)
